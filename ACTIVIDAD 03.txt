@@ -1,0 +1,58 @@
+//DATASET//
+
+import pandas as pd
+import numpy as np
+
+# Crear datos ficticios
+np.random.seed(42)
+
+# Estaciones y datos básicos
+estaciones = ["A", "B", "C", "D", "E"]
+clima = ["Soleado", "Lluvioso", "Nublado"]
+
+# Crear un dataset con información ficticia
+datos = {
+    "Origen": np.random.choice(estaciones, 100),
+    "Destino": np.random.choice(estaciones, 100),
+    "Hora": np.random.randint(0, 24, 100),  # Hora del día (0 a 23)
+    "Pasajeros": np.random.randint(5, 300, 100),  # Cantidad de pasajeros
+    "Clima": np.random.choice(clima, 100),
+    "Tiempo": np.random.randint(10, 60, 100)  # Tiempo en minutos
+}
+
+# Crear un DataFrame
+dataset = pd.DataFrame(datos)
+
+# Mostrar una parte del dataset
+print(dataset.head())
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+//modelo de predicción simple//
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+
+# Convertir variables categóricas (Origen, Destino, Clima) en números
+dataset_encoded = pd.get_dummies(dataset, columns=["Origen", "Destino", "Clima"])
+
+# Dividir los datos en variables de entrada (X) y salida (y)
+X = dataset_encoded.drop("Tiempo", axis=1)
+y = dataset["Tiempo"]
+
+# Separar en conjunto de entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Crear un modelo de regresión lineal
+modelo = LinearRegression()
+modelo.fit(X_train, y_train)  # Entrenar el modelo
+
+# Hacer predicciones con el conjunto de prueba
+predicciones = modelo.predict(X_test)
+
+# Evaluar el modelo
+error = mean_absolute_error(y_test, predicciones)
+print(f"Error absoluto medio (MAE): {error:.2f} minutos")
